@@ -1,88 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Naija Food Hub Pro</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Naija Food Hub Pro</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #fff6f0, #ffe8d6);
-    }
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #fff6f0, #ffe8d6);
+}
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      padding: 15px;
-      background: white;
-      position: sticky;
-      top: 0;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  background: white;
+  position: sticky;
+  top: 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
 
-    .logo { font-weight: bold; color: #e63946; }
+.logo { font-weight: bold; color: #e63946; }
 
-    .search-box {
-      width: 40%;
-      padding: 10px;
-      border-radius: 5px;
-      border: 1px solid #ddd;
-    }
+.search-box {
+  width: 40%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
 
-    .hero {
-      height: 200px;
-      background: url('https://source.unsplash.com/1200x600/?african-food') center/cover;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 22px;
-      font-weight: bold;
-    }
+.hero {
+  height: 180px;
+  background: url('https://source.unsplash.com/1200x600/?african-food') center/cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 22px;
+  font-weight: bold;
+}
 
-    .form-box {
-      margin: 15px;
-      padding: 15px;
-      background: white;
-      border-radius: 10px;
-    }
+.form-box {
+  margin: 15px;
+  padding: 15px;
+  background: white;
+  border-radius: 10px;
+}
 
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-    }
+input, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+}
 
-    button {
-      background: #e63946;
-      color: white;
-      border: none;
-      border-radius: 5px;
-    }
+button {
+  background: #e63946;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
 
-    .recipes {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      padding: 15px;
-    }
+.recipes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  padding: 15px;
+}
 
-    .card {
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
-    }
+.card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
 
-    .card img {
-      width: 100%;
-      height: 140px;
-      object-fit: cover;
-    }
+.card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
 
-    .hidden { display: none; }
-  </style>
+.hidden { display: none; }
+</style>
 </head>
 
 <body>
@@ -108,7 +108,7 @@
   <h3>Admin Dashboard</h3>
   <input id="name" placeholder="Dish name">
   <input id="time" placeholder="Cooking time">
-  <input type="file" id="image">
+  <input id="image" placeholder="Image URL (https://...)">
   <button onclick="addRecipe()">Upload Dish</button>
 </div>
 
@@ -116,97 +116,4 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, addDoc, collection, getDocs } 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAhWIRTxaROTxZUgurOck6OssjHDsGck5A",
-  authDomain: "naija-food-hub.firebaseapp.com",
-  projectId: "naija-food-hub",
-  storageBucket: "naija-food-hub.appspot.com",
-  messagingSenderId: "125081375115",
-  appId: "1:125081375115:web:eae26c6471f0a5176b9f8e"
-};
-
-const ADMIN_EMAIL = "andyntuk@gmail.com";
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
-
-let user = null;
-
-window.signup = async () => {
-  try {
-    await createUserWithEmailAndPassword(auth, email.value, password.value);
-    alert("Account created");
-  } catch (e) {
-    alert(e.message);
-  }
-};
-
-window.login = async () => {
-  try {
-    await signInWithEmailAndPassword(auth, email.value, password.value);
-    alert("Logged in");
-  } catch (e) {
-    alert(e.message);
-  }
-};
-
-onAuthStateChanged(auth, (u) => {
-  user = u;
-
-  if (user) {
-    authBox.classList.add("hidden");
-
-    if (user.email === ADMIN_EMAIL) {
-      adminBox.classList.remove("hidden");
-    } else {
-      adminBox.classList.add("hidden");
-    }
-  }
-});
-
-window.addRecipe = async () => {
-  const file = image.files[0];
-  const storageRef = ref(storage, "foods/" + file.name);
-
-  await uploadBytes(storageRef, file);
-  const url = await getDownloadURL(storageRef);
-
-  await addDoc(collection(db, "recipes"), {
-    name: name.value,
-    time: time.value,
-    image: url
-  });
-
-  load();
-};
-
-async function load() {
-  const snap = await getDocs(collection(db, "recipes"));
-  recipes.innerHTML = "";
-
-  snap.forEach(doc => {
-    const d = doc.data();
-    recipes.innerHTML += `
-      <div class="card">
-        <img src="${d.image}">
-        <h4>${d.name}</h4>
-        <small>${d.time}</small>
-      </div>
-    `;
-  });
-}
-
-load();
-</script>
-
-</body>
-</html>
+import { get
