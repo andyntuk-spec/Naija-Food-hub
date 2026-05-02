@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Naija Food Hub Pro</title>
-
-  <style>
+  <title>Naija Food Hub Pro</title>  <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
@@ -39,7 +36,7 @@
     }
 
     .hero {
-      height: 260px;
+      height: 240px;
       background: url('https://source.unsplash.com/1200x600/?african-food') center/cover;
       display: flex;
       align-items: center;
@@ -53,51 +50,10 @@
       border-radius: 10px;
     }
 
-    .section-title {
-      padding: 0 20px;
-      font-size: 20px;
-      margin-top: 10px;
-    }
-
-    .recipes {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      padding: 20px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-      transition: 0.3s;
-      cursor: pointer;
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-    }
-
-    .card img {
-      width: 100%;
-      height: 160px;
-      object-fit: cover;
-    }
-
-    .card-content {
-      padding: 12px;
-    }
-
-    .meta {
-      font-size: 12px;
-      color: gray;
-    }
-
     .form-box {
       background: white;
-      margin: 20px;
-      padding: 20px;
+      margin: 15px;
+      padding: 15px;
       border-radius: 10px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
@@ -120,6 +76,41 @@
       cursor: pointer;
     }
 
+    .recipes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      padding: 15px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      position: relative;
+    }
+
+    .card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 10px;
+    }
+
+    .heart {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: white;
+      border-radius: 50%;
+      padding: 5px;
+      cursor: pointer;
+    }
+
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -134,112 +125,140 @@
     .bottom-nav div {
       text-align: center;
       font-size: 12px;
-      color: #555;
+      cursor: pointer;
     }
 
-    footer { height: 60px; }
-  </style>
-</head>
-
-<body>
-
-<header>
+    .hidden { display: none; }
+  </style></head>
+<body><header>
   <div class="logo">NaijaFood</div>
-  <input type="text" class="search-box" placeholder="Search any Nigerian dish...">
-</header>
-
-<section class="hero">
-  <h1>Explore Nigerian Cuisine 🍲</h1>
-</section>
-
-<!-- ADD DISH FORM -->
-<div class="form-box">
-  <h3>Add New Dish</h3>
+  <input id="search" class="search-box" placeholder="Search dishes...">
+</header><section class="hero">
+  <h1>Naija Food Hub 🍲</h1>
+</section><!-- AUTH --><div class="form-box" id="authBox">
+  <h3>Sign Up / Login</h3>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="signup()">Sign Up</button>
+  <button onclick="login()">Login</button>
+</div><!-- ADMIN --><div class="form-box hidden" id="adminBox">
+  <h3>Admin Dashboard</h3>
   <input id="name" placeholder="Dish name">
   <input id="time" placeholder="Cooking time">
   <input type="file" id="image">
   <button onclick="addRecipe()">Upload Dish</button>
-</div>
-
-<h2 class="section-title">Nigerian Dishes</h2>
-
-<!-- RECIPES LOAD HERE -->
-<section class="recipes"></section>
-
-<footer></footer>
-
-<div class="bottom-nav">
-  <div>🏠<br>Home</div>
-  <div>🔍<br>Search</div>
-  <div>❤️<br>Saved</div>
-  <div>👤<br>Profile</div>
-</div>
-
-<!-- FIREBASE -->
-<script type="module">
+</div><h3 style="padding:10px;" id="title">Nigerian Dishes</h3><section class="recipes" id="recipes"></section><div class="bottom-nav">
+  <div onclick="showHome()">🏠<br>Home</div>
+  <div onclick="showSaved()">❤️<br>Saved</div>
+  <div onclick="showAdmin()">⚙️<br>Admin</div>
+</div><script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, addDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// 🔴 PASTE YOUR FIREBASE CONFIG HERE
 const firebaseConfig = {
-  apiKey: "AIzaSyAhWIRTxaRoTxZUgurOck6OssjHDsGck5A",
-  authDomain: "https://naija-food-hub.firebaseapp.com",
+  apiKey: "AIzaSyAhWIRTxaROTxZUgurOck6OssjHDsGck5A",
+  authDomain: "naija-food-hub.firebaseapp.com",
   projectId: "naija-food-hub",
-  storageBucket: "https://naija-food-hub.firebasestorage.app",
+  storageBucket: "naija-food-hub.appspot.com",
   messagingSenderId: "125081375115",
-  appId: "1:125081375115"
+  appId: "1:125081375115:web:eae26c6471f0a5176b9f8e"
 };
+
+const ADMIN_EMAIL = "admin@naijafood.com"; // 🔥 CHANGE THIS TO YOUR EMAIL
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
+const auth = getAuth(app);
 
-// ADD DISH
-window.addRecipe = async function () {
-  const name = document.getElementById("name").value;
-  const time = document.getElementById("time").value;
-  const file = document.getElementById("image").files[0];
+let user = null;
+let saved = JSON.parse(localStorage.getItem("saved")) || [];
+let all = [];
 
-  if (!file) return alert("Please select an image");
+window.signup = async () => createUserWithEmailAndPassword(auth, email.value, password.value);
+window.login = async () => signInWithEmailAndPassword(auth, email.value, password.value);
 
-  const storageRef = ref(storage, "foods/" + Date.now() + file.name);
-  await uploadBytes(storageRef, file);
-  const imageURL = await getDownloadURL(storageRef);
+onAuthStateChanged(auth, (u) => {
+  user = u;
+
+  if (user) {
+    authBox.classList.add("hidden");
+
+    // 🔥 ONLY ADMIN CAN SEE DASHBOARD
+    if (user.email === ADMIN_EMAIL) {
+      adminBox.classList.remove("hidden");
+    } else {
+      adminBox.classList.add("hidden");
+    }
+  }
+});
+
+window.addRecipe = async () => {
+  const file = image.files[0];
+  const r = ref(storage, "foods/" + Date.now() + file.name);
+  await uploadBytes(r, file);
+  const url = await getDownloadURL(r);
 
   await addDoc(collection(db, "recipes"), {
-    name,
-    time,
-    image: imageURL
+    name: name.value,
+    time: time.value,
+    image: url
   });
 
-  alert("Dish added!");
-  loadRecipes();
+  load();
 };
 
-// LOAD DISHES
-async function loadRecipes() {
-  const snapshot = await getDocs(collection(db, "recipes"));
-  const container = document.querySelector(".recipes");
-  container.innerHTML = "";
+async function load() {
+  const snap = await getDocs(collection(db, "recipes"));
+  recipes.innerHTML = "";
+  all = [];
 
-  snapshot.forEach(doc => {
-    const data = doc.data();
+  snap.forEach(d => all.push(d.data()));
+  render(all);
+}
 
-    container.innerHTML += `
+function render(data) {
+  recipes.innerHTML = "";
+
+  data.forEach(d => {
+    recipes.innerHTML += `
       <div class="card">
-        <img src="${data.image}">
+        <div class="heart" onclick="save('${d.image}')">❤️</div>
+        <img src="${d.image}">
         <div class="card-content">
-          <h3>${data.name}</h3>
-          <div class="meta">⏱ ${data.time}</div>
+          <h3>${d.name}</h3>
+          <small>${d.time}</small>
         </div>
       </div>
     `;
   });
 }
 
-loadRecipes();
-</script>
+window.save = (img) => {
+  saved.push(img);
+  localStorage.setItem("saved", JSON.stringify(saved));
+};
 
-</body>
+window.showSaved = () => {
+  recipes.innerHTML = "";
+  saved.forEach(i => recipes.innerHTML += `<img src="${i}" style="width:100%;margin:10px">`);
+};
+
+window.showHome = () => load();
+window.showAdmin = () => {
+  if (user?.email === ADMIN_EMAIL) adminBox.classList.remove("hidden");
+  else alert("Access denied: Not admin");
+};
+
+search.addEventListener("input", e => {
+  const v = e.target.value.toLowerCase();
+  document.querySelectorAll(".card").forEach(c => {
+    c.style.display = c.innerText.toLowerCase().includes(v) ? "block" : "none";
+  });
+});
+
+load();
+</script></body>
 </html>
