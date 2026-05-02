@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Naija Food Hub Pro</title>
+
   <style>
     body {
       margin: 0;
@@ -52,22 +53,6 @@
       border-radius: 10px;
     }
 
-    .categories {
-      display: flex;
-      overflow-x: auto;
-      gap: 10px;
-      padding: 15px;
-    }
-
-    .category {
-      background: #fff;
-      padding: 10px 15px;
-      border-radius: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      white-space: nowrap;
-      cursor: pointer;
-    }
-
     .section-title {
       padding: 0 20px;
       font-size: 20px;
@@ -104,15 +89,35 @@
       padding: 12px;
     }
 
-    .card-content h3 {
-      margin: 0;
-      font-size: 16px;
-    }
-
     .meta {
       font-size: 12px;
       color: gray;
-      margin-top: 5px;
+    }
+
+    .form-box {
+      background: white;
+      margin: 20px;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .form-box input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .form-box button {
+      padding: 10px;
+      width: 100%;
+      background: #e63946;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
 
     .bottom-nav {
@@ -135,6 +140,7 @@
     footer { height: 60px; }
   </style>
 </head>
+
 <body>
 
 <header>
@@ -146,30 +152,19 @@
   <h1>Explore Nigerian Cuisine 🍲</h1>
 </section>
 
-<div class="categories">
-  <div class="category">🍚 Rice</div>
-  <div class="category">🍲 Soups</div>
-  <div class="category">🍢 Street Food</div>
-  <div class="category">🥤 Drinks</div>
-  <div class="category">🍩 Snacks</div>
+<!-- ADD DISH FORM -->
+<div class="form-box">
+  <h3>Add New Dish</h3>
+  <input id="name" placeholder="Dish name">
+  <input id="time" placeholder="Cooking time">
+  <input type="file" id="image">
+  <button onclick="addRecipe()">Upload Dish</button>
 </div>
 
 <h2 class="section-title">Nigerian Dishes</h2>
 
-<section class="recipes">
-
-  <div class="card"><img src="https://source.unsplash.com/400x300/?jollof-rice"><div class="card-content"><h3>Jollof Rice</h3><div class="meta">⭐ 4.8</div></div></div>
-  <div class="card"><img src="https://source.unsplash.com/400x300/?fried-rice"><div class="card-content"><h3>Fried Rice</h3><div class="meta">⭐ 4.7</div></div></div>
-  <div class="card"><img src="https://source.unsplash.com/400x300/?egusi-soup"><div class="card-content"><h3>Egusi Soup</h3><div class="meta">⭐ 4.9</div></div></div>
-  <div class="card"><img src="https://source.unsplash.com/400x300/?okra-soup"><div class="card-content"><h3>Okra Soup</h3><div class="meta">⭐ 4.6</div></div></div>
-  <div class="card"><img src="https://source.unsplash.com/400x300/?ogbono"><div class="card-content"><h3>Ogbono Soup</h3><div class="meta">⭐ 4.5</div></div></div>
-  <div class="card"><img src="https://source.unsplash.com/400x300/?suya"><div class="card-content"><h3>Suya</h3><div class="meta">⭐ 4.9</div></div></div>
-  <div class="card"><img src="https://source.unsplash.com/400x300/?yam-porridge"><div class="card-content"><h3>Yam Porridge</h3><div class="meta">⭐ 4.6</div></div></div>
-  <div class="card"><img src="https://source.unsplash.com/400x300/?beans-porridge"><div class="card-content"><h3>Beans Porridge</h3><div class="meta">⭐ 4.4</div></div></div>
-  <div class="card"><img src="https://source.unsplash.com/400x300/?puff-puff"><div class="card-content"><h3>Puff Puff</h3><div class="meta">⭐ 4.8</div></div></div>
-  <div class="card"><img src="https://source.unsplash.com/400x300/?meat-pie"><div class="card-content"><h3>Meat Pie</h3><div class="meta">⭐ 4.7</div></div></div>
-
-</section>
+<!-- RECIPES LOAD HERE -->
+<section class="recipes"></section>
 
 <footer></footer>
 
@@ -180,5 +175,71 @@
   <div>👤<br>Profile</div>
 </div>
 
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, addDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+// 🔴 PASTE YOUR FIREBASE CONFIG HERE
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_ID",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "XXXX",
+  appId: "XXXX"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// ADD DISH
+window.addRecipe = async function () {
+  const name = document.getElementById("name").value;
+  const time = document.getElementById("time").value;
+  const file = document.getElementById("image").files[0];
+
+  if (!file) return alert("Please select an image");
+
+  const storageRef = ref(storage, "foods/" + Date.now() + file.name);
+  await uploadBytes(storageRef, file);
+  const imageURL = await getDownloadURL(storageRef);
+
+  await addDoc(collection(db, "recipes"), {
+    name,
+    time,
+    image: imageURL
+  });
+
+  alert("Dish added!");
+  loadRecipes();
+};
+
+// LOAD DISHES
+async function loadRecipes() {
+  const snapshot = await getDocs(collection(db, "recipes"));
+  const container = document.querySelector(".recipes");
+  container.innerHTML = "";
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+
+    container.innerHTML += `
+      <div class="card">
+        <img src="${data.image}">
+        <div class="card-content">
+          <h3>${data.name}</h3>
+          <div class="meta">⏱ ${data.time}</div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+loadRecipes();
+</script>
+
 </body>
-  </html>
+</html>
